@@ -1,0 +1,5 @@
+deviceshifu_driver:
+  ros__parameters:
+    linear_speed: 0.5
+    angular_speed: 0.2
+    http_port: 5000 
