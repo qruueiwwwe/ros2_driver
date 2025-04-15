@@ -3,16 +3,15 @@
 <package format="3">
   <name>ros2_driver</name>
   <version>0.0.1</version>
-  <description>ROS2 driver package for robot control</description>
+  <description>ROS2 driver for robot control with HTTP interface</description>
   <maintainer email="your-email@example.com">Your Name</maintainer>
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
-  <depend>diagnostic_msgs</depend>
   <depend>flask</depend>
 
   <test_depend>ament_copyright</test_depend>

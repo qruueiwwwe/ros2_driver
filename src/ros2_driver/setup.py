@@ -9,17 +9,19 @@ setup(
     version='0.0.1',
     packages=[package_name],
     data_files=[
-        ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'resource'), glob('resource/*')),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'flask'],
     zip_safe=True,
-    maintainer='your-name',
+    maintainer='Your Name',
     maintainer_email='your-email@example.com',
-    description='ROS2 driver package',
-    license='MIT',
+    description='ROS2 driver for robot control with HTTP interface',
+    license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
@@ -27,8 +29,4 @@ setup(
             'cmd_vel_relay_node = ros2_driver.cmd_vel_relay_node:main',
         ],
     },
-    scripts=[
-        'ros2_driver/driver_node.py',
-        'ros2_driver/cmd_vel_relay_node.py',
-    ],
-)
+) 
