@@ -24,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
             'driver_node = ros2_driver.driver_node:main',
+            'cmd_vel_relay_node = ros2_driver.cmd_vel_relay_node:main',
         ],
     },
 )

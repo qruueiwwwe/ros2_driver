@@ -29,7 +29,7 @@ class DeviceShifuDriver(Node):
         self.get_logger().info(f'Initialized with speeds - Linear: {self.linear_speed}, Angular: {self.angular_speed}')
         
         # Create publishers
-        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, '/custom_cmd_vel', 10)
         
         # Initialize movement state
         self.current_command = 0  # 0: stop, 1: forward, 2: backward, 3: left, 4: right
