@@ -145,15 +145,15 @@ class DeviceShifuDriver(Node):
         self.current_linear_speed = self.smooth_speed_change(
             self.current_linear_speed,
             self.target_linear_speed,
-            self.acceleration,
-            self.deceleration
+            self.get_parameter('acceleration').value,
+            self.get_parameter('deceleration').value
         )
         
         self.current_angular_speed = self.smooth_speed_change(
             self.current_angular_speed,
             self.target_angular_speed,
-            self.acceleration,
-            self.deceleration
+            self.get_parameter('acceleration').value,
+            self.get_parameter('deceleration').value
         )
         
         # 设置命令
