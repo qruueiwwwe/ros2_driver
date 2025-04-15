@@ -27,4 +27,8 @@ setup(
             'cmd_vel_relay_node = ros2_driver.cmd_vel_relay_node:main',
         ],
     },
+    scripts=[
+        'ros2_driver/driver_node.py',
+        'ros2_driver/cmd_vel_relay_node.py',
+    ],
 )
