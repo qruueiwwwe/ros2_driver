@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ros2-driver
+  labels:
+    app: ros2-driver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ros2-driver
+  template:
+    metadata:
+      labels:
+        app: ros2-driver
+    spec:
+      containers:
+      - name: ros2-driver
+        image: ros2-driver:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-c"]
+        args: ["source /opt/ros/humble/setup.sh && python3 /ros2_ws/src/ros2_driver/ros2_driver/driver_node.py"]
+        ports:
+        - containerPort: 5000
+          name: http
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.2"
+            memory: "256Mi"
+        securityContext:
+          privileged: true  # 需要特权模式来访问硬件
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ros2-driver-service
+spec:
+  selector:
+    app: ros2-driver
+  ports:
+  - port: 5000
+    targetPort: 5000
+    name: http
+  type: NodePort  # 使用 NodePort 类型，可以通过节点 IP 访问 
