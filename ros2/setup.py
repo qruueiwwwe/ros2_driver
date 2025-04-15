@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'deviceshifu_driver2'
+package_name = 'demo'
 
 setup(
     name=package_name,
@@ -13,17 +13,18 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Your Name',
     maintainer_email='your-email@example.com',
-    description='DeviceShifu ROS2 Driver',
-    license='Apache License 2.0',
+    description='ROS2 driver demo package for robot control',
+    license='TODO',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'driver_node = deviceshifu_driver2.driver_node:main',
+            'driver_node = demo.driver_node:main',
         ],
     },
 ) 

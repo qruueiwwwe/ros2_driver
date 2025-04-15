@@ -1,0 +1,19 @@
+driver_node:
+  ros__parameters:
+    # 运动控制参数
+    linear_speed: 0.5
+    angular_speed: 0.2
+    acceleration: 0.1
+    deceleration: 0.2
+    
+    # HTTP服务器参数
+    http_port: 5000
+    
+    # 安全参数
+    max_linear_speed: 1.0
+    max_angular_speed: 0.5
+    emergency_stop_timeout: 0.5
+    
+    # 诊断参数
+    diagnostic_period: 1.0
+    battery_warning_threshold: 0.2 
