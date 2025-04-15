@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'demo'
+package_name = 'ros2'
 
 setup(
     name=package_name,
@@ -19,12 +19,12 @@ setup(
     zip_safe=True,
     maintainer='Your Name',
     maintainer_email='your-email@example.com',
-    description='ROS2 driver demo package for robot control',
+    description='ROS2 driver package for robot control',
     license='TODO',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'driver_node = demo.driver_node:main',
+            'driver_node = ros2.driver_node:main',
         ],
     },
 ) 
