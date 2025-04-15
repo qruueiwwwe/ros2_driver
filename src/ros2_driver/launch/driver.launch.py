@@ -25,7 +25,7 @@ def generate_launch_description():
 
     # 创建节点
     driver_node = Node(
-        package='ros2',
+        package='ros2_driver',
         executable='driver_node',
         name='deviceshifu_driver',
         parameters=[{

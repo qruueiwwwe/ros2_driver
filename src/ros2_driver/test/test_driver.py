@@ -1,7 +1,7 @@
 import unittest
 import rclpy
 from rclpy.node import Node
-from ros2.ros2.driver_node import DeviceShifuDriver
+from ros2_driver.ros2_driver.driver_node import DeviceShifuDriver
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Int32
 import time

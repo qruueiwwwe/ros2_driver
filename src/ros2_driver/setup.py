@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'ros2'
+package_name = 'ros2_driver'
 
 setup(
     name=package_name,
@@ -24,7 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'driver_node = ros2.driver_node:main',
+            'driver_node = ros2_driver.driver_node:main',
         ],
     },
 ) 
