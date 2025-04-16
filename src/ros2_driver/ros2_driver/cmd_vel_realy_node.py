@@ -6,45 +6,47 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 import time
 
+
 class CmdVelRelayNode(Node):
     def __init__(self):
         super().__init__('cmd_vel_relay')
-        
+
         # 声明参数
         self.declare_parameter('max_linear_speed', 1.0)  # 最大线速度
         self.declare_parameter('max_angular_speed', 0.5)  # 最大角速度
         self.declare_parameter('acceleration', 0.1)  # 加速度限制
         self.declare_parameter('deceleration', 0.2)  # 减速度限制
         self.declare_parameter('safety_check', True)  # 是否启用安全检查
-        
+
         # 获取参数值
         self.max_linear_speed = self.get_parameter('max_linear_speed').value
         self.max_angular_speed = self.get_parameter('max_angular_speed').value
         self.acceleration = self.get_parameter('acceleration').value
         self.deceleration = self.get_parameter('deceleration').value
         self.safety_check = self.get_parameter('safety_check').value
-        
-        self.get_logger().info(f'初始化中继节点 - 最大线速度: {self.max_linear_speed}, 最大角速度: {self.max_angular_speed}')
-        
+
+        self.get_logger().info(
+            f'初始化中继节点 - 最大线速度: {self.max_linear_speed}, 最大角速度: {self.max_angular_speed}')
+
         # 创建订阅者和发布者
         self.custom_cmd_vel_sub = self.create_subscription(
-            Twist, 
-            '/custom_cmd_vel', 
-            self.custom_cmd_vel_callback, 
+            Twist,
+            '/custom_cmd_vel',
+            self.custom_cmd_vel_callback,
             10
         )
-        
+
         self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
-        
+
         # 初始化速度控制相关变量
         self.current_linear_speed = 0.0
         self.current_angular_speed = 0.0
         self.target_linear_speed = 0.0
         self.target_angular_speed = 0.0
-        
+
         # 创建定时器，用于平滑速度变化
         self.timer = self.create_timer(0.05, self.timer_callback)
-        
+
         self.get_logger().info('命令速度中继节点已初始化')
 
     def custom_cmd_vel_callback(self, msg):
@@ -52,7 +54,7 @@ class CmdVelRelayNode(Node):
         # 设置目标速度
         self.target_linear_speed = msg.linear.x
         self.target_angular_speed = msg.angular.z
-        
+
         # 记录接收到的命令
         self.get_logger().debug(f'接收到命令 - 线速度: {self.target_linear_speed}, 角速度: {self.target_angular_speed}')
 
@@ -65,20 +67,20 @@ class CmdVelRelayNode(Node):
             self.acceleration,
             self.deceleration
         )
-        
+
         self.current_angular_speed = self.smooth_speed_change(
             self.current_angular_speed,
             self.target_angular_speed,
             self.acceleration,
             self.deceleration
         )
-        
+
         # 安全检查
         if self.safety_check and not self.check_safety():
             self.get_logger().warn('安全检查失败，停止小车')
             self.current_linear_speed = 0.0
             self.current_angular_speed = 0.0
-        
+
         # 创建并发布 Twist 消息
         cmd = Twist()
         cmd.linear.x = self.current_linear_speed
@@ -87,7 +89,7 @@ class CmdVelRelayNode(Node):
         cmd.angular.x = 0.0
         cmd.angular.y = 0.0
         cmd.angular.z = self.current_angular_speed
-        
+
         # 发布命令
         self.cmd_vel_pub.publish(cmd)
 
@@ -95,7 +97,7 @@ class CmdVelRelayNode(Node):
         """平滑速度变化"""
         if abs(target - current) < 0.01:
             return target
-        
+
         if target > current:
             return min(current + accel, target)
         else:
@@ -107,12 +109,13 @@ class CmdVelRelayNode(Node):
         if abs(self.current_linear_speed) > self.max_linear_speed:
             self.get_logger().warn('线速度超过安全限制')
             return False
-        
+
         if abs(self.current_angular_speed) > self.max_angular_speed:
             self.get_logger().warn('角速度超过安全限制')
             return False
-        
+
         return True
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -125,5 +128,6 @@ def main(args=None):
         relay_node.destroy_node()
         rclpy.shutdown()
 
+
 if __name__ == '__main__':
-    main() 
+    main()

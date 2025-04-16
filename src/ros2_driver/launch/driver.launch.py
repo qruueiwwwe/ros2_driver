@@ -3,6 +3,7 @@ from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 
+
 def generate_launch_description():
     # 声明参数
     linear_speed_arg = DeclareLaunchArgument(
@@ -10,19 +11,19 @@ def generate_launch_description():
         default_value='0.5',
         description='Linear speed limit'
     )
-    
+
     angular_speed_arg = DeclareLaunchArgument(
         'angular_speed',
         default_value='0.2',
         description='Angular speed limit'
     )
-    
+
     http_port_arg = DeclareLaunchArgument(
         'http_port',
         default_value='5000',
         description='HTTP server port'
     )
-    
+
     # 创建节点
     driver_node = Node(
         package='ros2_driver',
@@ -37,7 +38,7 @@ def generate_launch_description():
         }],
         output='screen'
     )
-    
+
     cmd_vel_relay_node = Node(
         package='ros2_driver',
         executable='cmd_vel_relay_node',
@@ -51,7 +52,7 @@ def generate_launch_description():
         }],
         output='screen'
     )
-    
+
     return LaunchDescription([
         linear_speed_arg,
         angular_speed_arg,
