@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
       - name: ros2-driver
-        image: ros2-driver:latest
-        imagePullPolicy: IfNotPresent
+        image: ros2-driver:v1
+        imagePullPolicy: Never
         ports:
         - containerPort: 5000
           name: http
