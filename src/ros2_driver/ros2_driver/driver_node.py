@@ -216,14 +216,42 @@ class DeviceShifuDriver(Node):
                     linear_speed = request.args.get('linear')
                     angular_speed = request.args.get('angular')
                 
+                speed_changed = False
+                
                 if linear_speed is not None:
-                    self.linear_speed = max(min(float(linear_speed), self.max_linear_speed), self.min_linear_speed)
+                    new_linear = max(min(float(linear_speed), self.max_linear_speed), self.min_linear_speed)
+                    if new_linear != self.linear_speed:
+                        self.linear_speed = new_linear
+                        speed_changed = True
+                        
                 if angular_speed is not None:
-                    self.angular_speed = max(min(float(angular_speed), self.max_angular_speed), self.min_angular_speed)
+                    new_angular = max(min(float(angular_speed), self.max_angular_speed), self.min_angular_speed)
+                    if new_angular != self.angular_speed:
+                        self.angular_speed = new_angular
+                        speed_changed = True
+                
+                # 如果速度发生变化且小车正在移动，更新目标速度
+                if speed_changed and self.is_moving:
+                    if self.current_command == 1:  # 前进
+                        self.target_linear_speed = self.linear_speed
+                        self.target_angular_speed = 0.0
+                    elif self.current_command == 2:  # 后退
+                        self.target_linear_speed = -self.linear_speed
+                        self.target_angular_speed = 0.0
+                    elif self.current_command == 3:  # 左转
+                        self.target_linear_speed = 0.0
+                        self.target_angular_speed = self.angular_speed
+                    elif self.current_command == 4:  # 右转
+                        self.target_linear_speed = 0.0
+                        self.target_angular_speed = -self.angular_speed
                 
                 return jsonify({
                     'status': 'success',
                     'current_speeds': {
+                        'linear': self.target_linear_speed,
+                        'angular': self.target_angular_speed
+                    },
+                    'base_speeds': {
                         'linear': self.linear_speed,
                         'angular': self.angular_speed
                     }
