@@ -3,23 +3,35 @@
 <package format="3">
   <name>ros2_driver</name>
   <version>0.0.1</version>
-  <description>ROS2 driver for robot control with HTTP interface</description>
+  <description>ROS2 driver for wheeltec robot</description>
   <maintainer email="your-email@example.com">Your Name</maintainer>
-  <license>Apache License 2.0</license>
+  <license>TODO</license>
 
-  <buildtool_depend>ament_python</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
-  <depend>flask</depend>
+  <depend>sensor_msgs</depend>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
+  <test_depend>ament_cmake_lint_cmake</test_depend>
+  <test_depend>ament_cmake_copyright</test_depend>
+  <test_depend>ament_cmake_cppcheck</test_depend>
+  <test_depend>ament_cmake_cpplint</test_depend>
+  <test_depend>ament_cmake_flake8</test_depend>
+  <test_depend>ament_cmake_pep257</test_depend>
+  <test_depend>ament_cmake_uncrustify</test_depend>
+  <test_depend>ament_cmake_xmllint</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
   <test_depend>python3-pytest</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
+
+  <exec_depend>ros2launch</exec_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
 </package> 
