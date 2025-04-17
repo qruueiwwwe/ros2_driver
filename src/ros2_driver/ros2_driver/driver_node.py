@@ -4,12 +4,14 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Int32
+from std_msgs.msg import Int32, Float32
+from sensor_msgs.msg import Imu
 import time
 from flask import Flask, request, jsonify
 import threading
 import os
 import socket
+import json
 
 
 class DeviceShifuDriver(Node):
@@ -22,10 +24,20 @@ class DeviceShifuDriver(Node):
         self.declare_parameter('http_port', 5000)
         self.declare_parameter('acceleration', 0.1)  # 加速度限制
         self.declare_parameter('deceleration', 0.2)  # 减速度限制
+        
+        # 添加速度限制
+        self.declare_parameter('max_linear_speed', 1.0)
+        self.declare_parameter('min_linear_speed', 0.1)
+        self.declare_parameter('max_angular_speed', 0.5)
+        self.declare_parameter('min_angular_speed', 0.1)
 
         self.linear_speed = self.get_parameter('linear_speed').value
         self.angular_speed = self.get_parameter('angular_speed').value
         self.http_port = self.get_parameter('http_port').value
+        self.max_linear_speed = self.get_parameter('max_linear_speed').value
+        self.min_linear_speed = self.get_parameter('min_linear_speed').value
+        self.max_angular_speed = self.get_parameter('max_angular_speed').value
+        self.min_angular_speed = self.get_parameter('min_angular_speed').value
 
         self.get_logger().info(f'Initialized with speeds - Linear: {self.linear_speed}, Angular: {self.angular_speed}')
 
@@ -36,6 +48,33 @@ class DeviceShifuDriver(Node):
         self.current_command = 0  # 0: stop, 1: forward, 2: backward, 3: left, 4: right
         self.is_moving = False
         self.movement_timer = None
+        
+        # 初始化传感器数据
+        self.sensor_data = {
+            'imu': None,
+            'power_voltage': None,
+            'imu_low': None
+        }
+        
+        # 创建传感器数据订阅
+        self.imu_sub = self.create_subscription(
+            Imu, 
+            '/imu', 
+            self.imu_callback, 
+            10
+        )
+        self.power_voltage_sub = self.create_subscription(
+            Float32, 
+            '/PowerVoltage', 
+            self.power_voltage_callback, 
+            10
+        )
+        self.imu_low_sub = self.create_subscription(
+            Imu, 
+            '/imu_low', 
+            self.imu_low_callback, 
+            10
+        )
 
         # Initialize Flask app
         self.app = Flask(__name__)
@@ -53,6 +92,52 @@ class DeviceShifuDriver(Node):
         self.current_angular_speed = 0.0
         self.target_linear_speed = 0.0
         self.target_angular_speed = 0.0
+        
+    def imu_callback(self, msg):
+        """IMU数据回调"""
+        self.sensor_data['imu'] = {
+            'orientation': {
+                'x': msg.orientation.x,
+                'y': msg.orientation.y,
+                'z': msg.orientation.z,
+                'w': msg.orientation.w
+            },
+            'angular_velocity': {
+                'x': msg.angular_velocity.x,
+                'y': msg.angular_velocity.y,
+                'z': msg.angular_velocity.z
+            },
+            'linear_acceleration': {
+                'x': msg.linear_acceleration.x,
+                'y': msg.linear_acceleration.y,
+                'z': msg.linear_acceleration.z
+            }
+        }
+        
+    def imu_low_callback(self, msg):
+        """低频率IMU数据回调"""
+        self.sensor_data['imu_low'] = {
+            'orientation': {
+                'x': msg.orientation.x,
+                'y': msg.orientation.y,
+                'z': msg.orientation.z,
+                'w': msg.orientation.w
+            },
+            'angular_velocity': {
+                'x': msg.angular_velocity.x,
+                'y': msg.angular_velocity.y,
+                'z': msg.angular_velocity.z
+            },
+            'linear_acceleration': {
+                'x': msg.linear_acceleration.x,
+                'y': msg.linear_acceleration.y,
+                'z': msg.linear_acceleration.z
+            }
+        }
+        
+    def power_voltage_callback(self, msg):
+        """电源电压数据回调"""
+        self.sensor_data['power_voltage'] = msg.data
 
     def setup_routes(self):
         @self.app.route('/move', methods=['POST'])
@@ -60,12 +145,21 @@ class DeviceShifuDriver(Node):
             try:
                 data = request.get_json()
                 command = data.get('command')
+                # 获取可选的速度参数
+                linear_speed = data.get('linear_speed')
+                angular_speed = data.get('angular_speed')
                 speed = data.get('speed', 1.0)  # 添加速度控制
 
                 if command is not None:
                     self.current_command = int(command)
                     self.is_moving = True
-
+                    
+                    # 如果提供了速度参数，更新速度
+                    if linear_speed is not None:
+                        self.linear_speed = max(min(float(linear_speed), self.max_linear_speed), self.min_linear_speed)
+                    if angular_speed is not None:
+                        self.angular_speed = max(min(float(angular_speed), self.max_angular_speed), self.min_angular_speed)
+                    
                     # 根据speed参数调整目标速度
                     self.target_linear_speed = self.linear_speed * speed
                     self.target_angular_speed = self.angular_speed * speed
@@ -74,11 +168,61 @@ class DeviceShifuDriver(Node):
                         self.movement_timer.cancel()
 
                     self.movement_timer = self.create_timer(0.1, self.movement_callback)
-                    return jsonify({'status': 'success', 'command': command, 'speed': speed})
+                    return jsonify({
+                        'status': 'success', 
+                        'command': command, 
+                        'speed': speed,
+                        'current_speeds': {
+                            'linear': self.linear_speed,
+                            'angular': self.angular_speed
+                        }
+                    })
                 else:
                     return jsonify({'status': 'error', 'message': 'No command provided'}), 400
             except Exception as e:
                 return jsonify({'status': 'error', 'message': str(e)}), 500
+                
+        @self.app.route('/speed', methods=['POST'])
+        def set_speed():
+            try:
+                data = request.get_json()
+                linear_speed = data.get('linear_speed')
+                angular_speed = data.get('angular_speed')
+                
+                if linear_speed is not None:
+                    self.linear_speed = max(min(float(linear_speed), self.max_linear_speed), self.min_linear_speed)
+                if angular_speed is not None:
+                    self.angular_speed = max(min(float(angular_speed), self.max_angular_speed), self.min_angular_speed)
+                
+                return jsonify({
+                    'status': 'success',
+                    'current_speeds': {
+                        'linear': self.linear_speed,
+                        'angular': self.angular_speed
+                    }
+                })
+            except Exception as e:
+                return jsonify({'status': 'error', 'message': str(e)}), 500
+                
+        @self.app.route('/speed', methods=['GET'])
+        def get_speed():
+            return jsonify({
+                'status': 'success',
+                'current_speeds': {
+                    'linear': self.linear_speed,
+                    'angular': self.angular_speed
+                },
+                'speed_limits': {
+                    'linear': {
+                        'min': self.min_linear_speed,
+                        'max': self.max_linear_speed
+                    },
+                    'angular': {
+                        'min': self.min_angular_speed,
+                        'max': self.max_angular_speed
+                    }
+                }
+            })
 
         @self.app.route('/stop', methods=['POST'])
         def stop():
@@ -114,7 +258,32 @@ class DeviceShifuDriver(Node):
                 'is_moving': self.is_moving,
                 'current_command': self.current_command,
                 'linear_speed': self.linear_speed,
-                'angular_speed': self.angular_speed
+                'angular_speed': self.angular_speed,
+                'sensor_data': self.sensor_data
+            })
+            
+        @self.app.route('/sensors', methods=['GET'])
+        def sensors():
+            """获取所有传感器数据"""
+            return jsonify({
+                'status': 'success',
+                'sensor_data': self.sensor_data
+            })
+            
+        @self.app.route('/imu', methods=['GET'])
+        def imu():
+            """获取IMU数据"""
+            return jsonify({
+                'status': 'success',
+                'imu_data': self.sensor_data['imu']
+            })
+            
+        @self.app.route('/power_voltage', methods=['GET'])
+        def power_voltage():
+            """获取电源电压数据"""
+            return jsonify({
+                'status': 'success',
+                'voltage': self.sensor_data['power_voltage']
             })
 
     def run_http_server(self):

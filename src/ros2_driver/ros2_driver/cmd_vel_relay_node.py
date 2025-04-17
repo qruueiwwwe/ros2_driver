@@ -17,6 +17,8 @@ class CmdVelRelayNode(Node):
         self.declare_parameter('acceleration', 0.1)  # 加速度限制
         self.declare_parameter('deceleration', 0.2)  # 减速度限制
         self.declare_parameter('safety_check', True)  # 是否启用安全检查
+        self.declare_parameter('min_linear_speed', 0.1)  # 最小线速度
+        self.declare_parameter('min_angular_speed', 0.1)  # 最小角速度
 
         # 获取参数值
         self.max_linear_speed = self.get_parameter('max_linear_speed').value
@@ -24,6 +26,8 @@ class CmdVelRelayNode(Node):
         self.acceleration = self.get_parameter('acceleration').value
         self.deceleration = self.get_parameter('deceleration').value
         self.safety_check = self.get_parameter('safety_check').value
+        self.min_linear_speed = self.get_parameter('min_linear_speed').value
+        self.min_angular_speed = self.get_parameter('min_angular_speed').value
 
         self.get_logger().info(
             f'初始化中继节点 - 最大线速度: {self.max_linear_speed}, 最大角速度: {self.max_angular_speed}')
@@ -43,6 +47,7 @@ class CmdVelRelayNode(Node):
         self.current_angular_speed = 0.0
         self.target_linear_speed = 0.0
         self.target_angular_speed = 0.0
+        self.last_command_time = self.get_clock().now()
 
         # 创建定时器，用于平滑速度变化
         self.timer = self.create_timer(0.05, self.timer_callback)
@@ -54,9 +59,15 @@ class CmdVelRelayNode(Node):
         # 设置目标速度
         self.target_linear_speed = msg.linear.x
         self.target_angular_speed = msg.angular.z
-
+        
+        # 更新最后命令时间
+        this_time = self.get_clock().now()
+        time_diff = (this_time - self.last_command_time).nanoseconds / 1e9
+        self.last_command_time = this_time
+        
         # 记录接收到的命令
-        self.get_logger().debug(f'接收到命令 - 线速度: {self.target_linear_speed}, 角速度: {self.target_angular_speed}')
+        self.get_logger().debug(
+            f'接收到命令 - 线速度: {self.target_linear_speed}, 角速度: {self.target_angular_speed}, 时间间隔: {time_diff:.3f}s')
 
     def timer_callback(self):
         """定时器回调，用于平滑速度变化并发布到 /cmd_vel"""
@@ -92,6 +103,11 @@ class CmdVelRelayNode(Node):
 
         # 发布命令
         self.cmd_vel_pub.publish(cmd)
+        
+        # 记录当前速度
+        if abs(self.current_linear_speed) > 0.01 or abs(self.current_angular_speed) > 0.01:
+            self.get_logger().debug(
+                f'当前速度 - 线速度: {self.current_linear_speed:.3f}, 角速度: {self.current_angular_speed:.3f}')
 
     def smooth_speed_change(self, current, target, accel, decel):
         """平滑速度变化"""
