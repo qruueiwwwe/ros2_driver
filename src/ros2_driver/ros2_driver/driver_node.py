@@ -83,12 +83,28 @@ class DeviceShifuDriver(Node):
         @self.app.route('/stop', methods=['POST'])
         def stop():
             try:
+                self.get_logger().info('收到停止命令')
                 self.current_command = 0
                 self.is_moving = False
+                
+                # 直接发布停止命令
+                cmd = Twist()
+                cmd.linear.x = 0.0
+                cmd.angular.z = 0.0
+                self.cmd_vel_pub.publish(cmd)
+                self.get_logger().info('已发布停止命令')
+                
+                # 重置目标速度
+                self.target_linear_speed = 0.0
+                self.target_angular_speed = 0.0
+                
                 if self.movement_timer:
                     self.movement_timer.cancel()
+                    self.get_logger().info('已取消移动定时器')
+                
                 return jsonify({'status': 'success', 'message': 'Robot stopped'})
             except Exception as e:
+                self.get_logger().error(f'停止命令出错: {str(e)}')
                 return jsonify({'status': 'error', 'message': str(e)}), 500
 
         @self.app.route('/status', methods=['GET'])
@@ -191,7 +207,6 @@ class DeviceShifuDriver(Node):
             return False
 
         return True
-
 
 def main(args=None):
     rclpy.init(args=args)
