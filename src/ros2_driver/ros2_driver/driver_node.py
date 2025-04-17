@@ -239,10 +239,6 @@ class DeviceShifuDriver(Node):
                     'linear': self.target_linear_speed,
                     'angular': self.target_angular_speed
                 },
-                'base_speeds': {
-                    'linear': self.linear_speed,
-                    'angular': self.angular_speed
-                },
                 'speed_limits': {
                     'linear': {
                         'min': self.min_linear_speed,
