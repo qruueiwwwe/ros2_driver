@@ -236,6 +236,10 @@ class DeviceShifuDriver(Node):
             return jsonify({
                 'status': 'success',
                 'current_speeds': {
+                    'linear': self.target_linear_speed,
+                    'angular': self.target_angular_speed
+                },
+                'base_speeds': {
                     'linear': self.linear_speed,
                     'angular': self.angular_speed
                 },
