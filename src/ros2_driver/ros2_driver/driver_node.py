@@ -143,12 +143,19 @@ class DeviceShifuDriver(Node):
         @self.app.route('/move', methods=['POST'])
         def move():
             try:
-                data = request.get_json()
-                command = data.get('command')
-                # 获取可选的速度参数
-                linear_speed = data.get('linear_speed')
-                angular_speed = data.get('angular_speed')
-                speed = data.get('speed', 1.0)  # 添加速度控制
+                # 支持URL参数和JSON格式
+                if request.is_json:
+                    data = request.get_json()
+                    command = data.get('command')
+                    linear_speed = data.get('linear_speed')
+                    angular_speed = data.get('angular_speed')
+                    speed = data.get('speed', 1.0)
+                else:
+                    # 从URL参数获取数据
+                    command = request.args.get('command')
+                    linear_speed = request.args.get('linear')
+                    angular_speed = request.args.get('angular')
+                    speed = float(request.args.get('speed', 1.0))
 
                 if command is not None:
                     self.current_command = int(command)
@@ -160,21 +167,35 @@ class DeviceShifuDriver(Node):
                     if angular_speed is not None:
                         self.angular_speed = max(min(float(angular_speed), self.max_angular_speed), self.min_angular_speed)
                     
-                    # 根据speed参数调整目标速度
-                    self.target_linear_speed = self.linear_speed * speed
-                    self.target_angular_speed = self.angular_speed * speed
+                    # 根据command和speed参数调整目标速度
+                    if self.current_command == 0:  # 停止命令
+                        self.target_linear_speed = 0.0
+                        self.target_angular_speed = 0.0
+                        self.is_moving = False
+                    else:
+                        self.target_linear_speed = self.linear_speed * speed
+                        self.target_angular_speed = self.angular_speed * speed
 
                     if self.movement_timer:
                         self.movement_timer.cancel()
 
-                    self.movement_timer = self.create_timer(0.1, self.movement_callback)
+                    if self.is_moving:
+                        self.movement_timer = self.create_timer(0.1, self.movement_callback)
+                    else:
+                        # 直接发布停止命令
+                        cmd = Twist()
+                        cmd.linear.x = 0.0
+                        cmd.angular.z = 0.0
+                        self.cmd_vel_pub.publish(cmd)
+                        self.get_logger().info('已发布停止命令')
+
                     return jsonify({
                         'status': 'success', 
                         'command': command, 
                         'speed': speed,
                         'current_speeds': {
-                            'linear': self.linear_speed,
-                            'angular': self.angular_speed
+                            'linear': self.target_linear_speed,
+                            'angular': self.target_angular_speed
                         }
                     })
                 else:
@@ -185,9 +206,15 @@ class DeviceShifuDriver(Node):
         @self.app.route('/speed', methods=['POST'])
         def set_speed():
             try:
-                data = request.get_json()
-                linear_speed = data.get('linear_speed')
-                angular_speed = data.get('angular_speed')
+                # 支持URL参数和JSON格式
+                if request.is_json:
+                    data = request.get_json()
+                    linear_speed = data.get('linear_speed')
+                    angular_speed = data.get('angular_speed')
+                else:
+                    # 从URL参数获取数据
+                    linear_speed = request.args.get('linear')
+                    angular_speed = request.args.get('angular')
                 
                 if linear_speed is not None:
                     self.linear_speed = max(min(float(linear_speed), self.max_linear_speed), self.min_linear_speed)
