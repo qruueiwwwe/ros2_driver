@@ -14,9 +14,7 @@ RUN apt-get update && apt-get install -y \
 COPY src/ros2_driver /ros2_ws/src/ros2_driver
 
 # 安装Python依赖
-RUN pip3 install -e /ros twice_driver
-# 确保 Python 文件有执行权限
-RUN chmod +x /ros2_ws/src/ros2_driver/ros2_driver/*.py
+RUN pip3 install -e /ros2_ws/src/ros2_driver
 
 # 构建ROS2工作空间
 RUN . /opt/ros/humble/setup.sh && \
@@ -24,10 +22,7 @@ RUN . /opt/ros/humble/setup.sh && \
     colcon build --symlink-install
 
 # 设置环境变量
-ENV PYTHONPATH=/ros2_ws/install/ros2_driver/lib/python3.10/site-packages:$PYTHONPATH
-ENV LD_LIBRARY_PATH=/ros2_ws/install/ros2_driver/lib:$LD_LIBRARY_PATH
+ENV PYTHONPATH=/ros2_ws/install/lib/python3.10/site-packages:$PYTHONPATH
 
 # 设置入口点
-ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/humble/setup.sh && source /ros2_ws/install/setup.bash && exec \"$@\""]
-# 修改 CMD 命令
-CMD ["ros2", "launch", "ros2_driver", "driver.launch.py"]
+ENTRYPOINT ["/bin/bash"]
