@@ -33,11 +33,8 @@ spec:
               cpu: "200m"
           ports:
             - containerPort: 11311
-              hostPort: 11311
             - containerPort: 11312
-              hostPort: 11312
             - containerPort: 5000
-              hostPort: 5000
           env:
             - name: ROS_MASTER_URI
               value: "http://192.168.31.118:11311"
@@ -70,8 +67,6 @@ spec:
               mountPath: /dev/ttyACM0
             - name: tty-acm1
               mountPath: /dev/ttyACM1
-          command: ["/bin/bash"]
-          args: ["-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch"]
       volumes:
         - name: config-volume
           configMap:
@@ -84,6 +79,7 @@ spec:
           hostPath:
             path: /dev/ttyACM1
             type: CharDevice
+
 ---
 apiVersion: v1
 kind: Service

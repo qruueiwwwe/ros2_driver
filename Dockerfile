@@ -25,4 +25,4 @@ RUN . /opt/ros/humble/setup.sh && \
 ENV PYTHONPATH=/ros2_ws/install/lib/python3.10/site-packages:$PYTHONPATH
 
 # 设置入口点
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["ros2", "launch", "ros2_driver", "driver.launch.py"]
