@@ -1,10 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: ros2-driver
-  labels:
-    app: ros2-driver
+  namespace: default
 spec:
+  serviceName: ros2-driver
   replicas: 1
   selector:
     matchLabels:
@@ -14,37 +14,75 @@ spec:
       labels:
         app: ros2-driver
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: k8s-car-device003
       containers:
-      - name: ros2-driver
-        image: ros2-driver:v1
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 5000
-          name: http
-        env:
-        - name: POD_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-        resources:
-          limits:
-            cpu: "0.5"
-            memory: "512Mi"
-          requests:
-            cpu: "0.2"
-            memory: "256Mi"
-        securityContext:
-          privileged: true  # 需要特权模式来访问硬件
+        - name: ros2-driver
+          image: ros2-driver:v1
+          imagePullPolicy: Never
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          ports:
+            - containerPort: 5000
+              hostPort: 5000
+          env:
+            - name: ROS_DOMAIN_ID
+              value: "0"
+            - name: ROS_LOCALHOST_ONLY
+              value: "0"
+            - name: ROS_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: ROS_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: PYTHONPATH
+              value: "/opt/ros/humble/lib/python3.10/site-packages:/ros2_ws/install/ros2_driver/lib/python3.10/site-packages"
+            - name: LD_LIBRARY_PATH
+              value: "/opt/ros/humble/lib:/ros2_ws/install/ros2_driver/lib"
+            - name: ROS_DISTRO
+              value: "humble"
+          volumeMounts:
+            - name: tty-acm0
+              mountPath: /dev/ttyACM0
+            - name: tty-acm1
+              mountPath: /dev/ttyACM1
+      volumes:
+        - name: tty-acm0
+          hostPath:
+            path: /dev/ttyACM0
+            type: CharDevice
+        - name: tty-acm1
+          hostPath:
+            path: /dev/ttyACM1
+            type: CharDevice
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ros2-driver-service
+  name: ros2-driver
 spec:
   selector:
     app: ros2-driver
   ports:
-  - port: 5000
-    targetPort: 5000
-    name: http
-  type: NodePort  # 使用 NodePort 类型，可以通过节点 IP 访问 
+    - port: 5000
+      targetPort: 5000
+      name: http
+  type: NodePort
+  externalIPs:
+    - 192.168.31.118 
