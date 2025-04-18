@@ -62,16 +62,16 @@ spec:
               value: "humble"
           volumeMounts:
             - name: config-volume
-                mountPath: /ros2_ws/src/ros2_driver/config # 挂载到容器中的具体文件
-                subPath: driver_config.yaml  # 挂载特定的文件，而不是整个目录
+              mountPath: /ros2_ws/src/ros2_driver/config
+              subPath: driver_config.yaml
             - name: tty-acm0
               mountPath: /dev/ttyACM0
             - name: tty-acm1
               mountPath: /dev/ttyACM1
       volumes:
         - name: config-volume
-         configMap:
-          name: ros2-config 
+          configMap:
+            name: ros2-config
         - name: tty-acm0
           hostPath:
             path: /dev/ttyACM0
