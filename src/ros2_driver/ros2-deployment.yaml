@@ -31,6 +31,10 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "200m"
+          ports:
+            - containerPort: 5000
+              hostPort: 5000
+              protocol: TCP
           env:
             - name: ROS_DOMAIN_ID
               value: "0"
@@ -60,7 +64,7 @@ spec:
             - name: tty-acm1
               mountPath: /dev/ttyACM1
           command: ["/bin/bash"]
-          args: ["-c", "ls -l /dev/ttyACM* && sleep infinity"]
+          args: ["-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch.py"]
       volumes:
         - name: tty-acm0
           hostPath:
@@ -79,4 +83,10 @@ metadata:
 spec:
   selector:
     app: ros2-driver
-  type: ClusterIP 
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+  type: NodePort
+  externalIPs:
+    - 192.168.31.118 
