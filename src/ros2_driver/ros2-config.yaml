@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ros2-config
+  namespace: devices
+data:
+  driver_config.yaml: |
+    # ROS2 Driver Node Configuration
+    ros2_driver:
+      # Speed Parameters
+      linear_speed: 0.2  # Linear velocity (m/s)
+      angular_speed: 0.2  # Angular velocity (rad/s)
+      
+      # Camera Parameters
+      camera_fps: 30  # Frame rate
+      camera_width: 720  # Image width
+      camera_height: 480  # Image height
+      
+      # Simulation Image Parameters
+      sim_image_color: [187, 197, 57]  # BGR format of #39c5bb
