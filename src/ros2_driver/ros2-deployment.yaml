@@ -62,7 +62,7 @@ spec:
               value: "humble"
           volumeMounts:
             - name: config-volume
-              mountPath: /ros2_ws/src/ros2_driver/config
+              mountPath: /ros2_ws/src/ros2_driver/ros2-config.yaml
             - name: tty-acm0
               mountPath: /dev/ttyACM0
             - name: tty-acm1
