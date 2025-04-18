@@ -1,6 +1,7 @@
-FROM ros:humble
+# 构建阶段
+FROM ros:humble as builder
 
-# 安装必要的依赖
+# 安装构建依赖
 RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-opencv \
@@ -16,6 +17,8 @@ COPY . /ros2_ws/src/
 
 # 编译工作空间
 WORKDIR /ros2_ws
+RUN . /opt/ros/humble/setup.sh && \
+    colcon build --packages-select ros2_driver --symlink-install
 
 # 复制 ROS2 包
 COPY . /ros2_ws/src/ros2_driver/
