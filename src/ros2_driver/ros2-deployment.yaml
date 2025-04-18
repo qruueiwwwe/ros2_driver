@@ -31,9 +31,6 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "200m"
-          ports:
-            - containerPort: 5000
-              hostPort: 5000
           env:
             - name: ROS_DOMAIN_ID
               value: "0"
@@ -62,6 +59,8 @@ spec:
               mountPath: /dev/ttyACM0
             - name: tty-acm1
               mountPath: /dev/ttyACM1
+          command: ["/bin/bash"]
+          args: ["-c", "ls -l /dev/ttyACM* && sleep infinity"]
       volumes:
         - name: tty-acm0
           hostPath:
@@ -76,13 +75,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ros2-driver
+  namespace: devices
 spec:
   selector:
     app: ros2-driver
-  ports:
-    - port: 5000
-      targetPort: 5000
-      name: http
-  type: NodePort
-  externalIPs:
-    - 192.168.31.118 
+  type: ClusterIP 
