@@ -63,11 +63,12 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /ros2_ws/src/ros2_driver/config
-              subPath: driver_config.yaml
             - name: tty-acm0
               mountPath: /dev/ttyACM0
             - name: tty-acm1
               mountPath: /dev/ttyACM1
+          command: ["/bin/bash"]
+          args: ["-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch.py"]
       volumes:
         - name: config-volume
           configMap:
