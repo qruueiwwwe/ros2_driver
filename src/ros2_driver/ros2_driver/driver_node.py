@@ -69,6 +69,7 @@ class DeviceShifuDriver(Node):
             self.power_voltage_callback, 
             10
         )
+        self.get_logger().info('已创建电源电压订阅，话题: /PowerVoltage')
         self.imu_low_sub = self.create_subscription(
             Imu, 
             '/imu_low', 
@@ -138,6 +139,7 @@ class DeviceShifuDriver(Node):
     def power_voltage_callback(self, msg):
         """电源电压数据回调"""
         self.sensor_data['power_voltage'] = msg.data
+        self.get_logger().debug(f'收到电源电压数据: {msg.data}V')
 
     def setup_routes(self):
         @self.app.route('/move', methods=['POST'])

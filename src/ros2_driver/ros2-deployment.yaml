@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ros2-driver
-  namespace: default
+  namespace: devices
 spec:
   serviceName: ros2-driver
   replicas: 1
