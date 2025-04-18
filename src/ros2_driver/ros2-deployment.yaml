@@ -32,14 +32,15 @@ spec:
               memory: "256Mi"
               cpu: "200m"
           ports:
+            - containerPort: 11311
+              hostPort: 11311
+            - containerPort: 11312
+              hostPort: 11312
             - containerPort: 5000
               hostPort: 5000
-              protocol: TCP
           env:
-            - name: ROS_DOMAIN_ID
-              value: "0"
-            - name: ROS_LOCALHOST_ONLY
-              value: "0"
+            - name: ROS_MASTER_URI
+              value: "http://192.168.31.118:11311"
             - name: ROS_IP
               valueFrom:
                 fieldRef:
@@ -53,19 +54,28 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: PYTHONPATH
-              value: "/opt/ros/humble/lib/python3.10/site-packages:/ros2_ws/install/ros2_driver/lib/python3.10/site-packages"
+              value: "/opt/ros/humble/lib/python3/dist-packages:/ros2_ws/install/lib/python3/dist-packages"
             - name: LD_LIBRARY_PATH
-              value: "/opt/ros/humble/lib:/ros2_ws/install/ros2_driver/lib"
+              value: "/opt/ros/humble/lib:/ros2_ws/install/lib"
+            - name: ROS_ROOT
+              value: "/opt/ros/humble/share/ros"
+            - name: ROS_PACKAGE_PATH
+              value: "/opt/ros/humble/share:/ros2_ws/src"
             - name: ROS_DISTRO
               value: "humble"
           volumeMounts:
+            - name: config-volume
+              mountPath: /ros2_ws/src/ros2_driver/config
             - name: tty-acm0
               mountPath: /dev/ttyACM0
             - name: tty-acm1
               mountPath: /dev/ttyACM1
           command: ["/bin/bash"]
-          args: ["-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch.py"]
+          args: ["-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch"]
       volumes:
+        - name: config-volume
+          configMap:
+            name: ros2-config
         - name: tty-acm0
           hostPath:
             path: /dev/ttyACM0
@@ -84,9 +94,13 @@ spec:
   selector:
     app: ros2-driver
   ports:
+    - port: 11311
+      targetPort: 11311
+      name: ros-master
+    - port: 11312
+      targetPort: 11312
+      name: ros-slave
     - port: 5000
       targetPort: 5000
-      protocol: TCP
+      name: http
   type: NodePort
-  externalIPs:
-    - 192.168.31.118 
