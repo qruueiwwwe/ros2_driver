@@ -3,6 +3,7 @@ FROM ros:humble
 # 安装必要的依赖
 RUN apt-get update && apt-get install -y \
     python3-pip \
+    python3-setuptools \
     python3-opencv \
     curl \
     && rm -rf /var/lib/apt/lists/*
