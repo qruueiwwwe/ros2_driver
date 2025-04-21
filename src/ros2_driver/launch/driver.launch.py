@@ -29,6 +29,7 @@ def generate_launch_description():
         package='ros2_driver',
         executable='driver_node',
         name='deviceshifu_driver',
+        namespace='',
         parameters=[{
             'linear_speed': LaunchConfiguration('linear_speed'),
             'angular_speed': LaunchConfiguration('angular_speed'),
@@ -36,13 +37,20 @@ def generate_launch_description():
             'acceleration': 0.1,
             'deceleration': 0.2
         }],
-        output='screen'
+        remappings=[
+            ('/custom_cmd_vel', '/cmd_vel'),
+            ('/imu', '/imu/data'),
+            ('/power_voltage', '/battery_voltage')
+        ],
+        output='screen',
+        emulate_tty=True
     )
 
     cmd_vel_relay_node = Node(
         package='ros2_driver',
         executable='cmd_vel_relay_node',
         name='cmd_vel_relay',
+        namespace='',
         parameters=[{
             'max_linear_speed': LaunchConfiguration('linear_speed'),
             'max_angular_speed': LaunchConfiguration('angular_speed'),
@@ -50,7 +58,12 @@ def generate_launch_description():
             'deceleration': 0.2,
             'safety_check': True
         }],
-        output='screen'
+        remappings=[
+            ('/cmd_vel', '/cmd_vel'),
+            ('/custom_cmd_vel', '/cmd_vel')
+        ],
+        output='screen',
+        emulate_tty=True
     )
 
     return LaunchDescription([
