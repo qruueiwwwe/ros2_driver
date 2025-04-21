@@ -76,7 +76,7 @@ spec:
             - name: tty-acm1
               mountPath: /dev/ttyACM1
           command: ["/bin/bash"]
-          args: ["-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch.py"]
+          args: ["-c", "cd /ros2_ws && colcon build --packages-select ros2_driver && source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch.py"]
       volumes:
         - name: config-volume
           configMap:

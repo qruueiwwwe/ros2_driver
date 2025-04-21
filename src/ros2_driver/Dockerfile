@@ -8,8 +8,12 @@ WORKDIR /ros2_ws
 RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-colcon-common-extensions \
+    python3-flask \
+    python3-opencv \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip3 install flask pyyaml opencv-python numpy
 # 复制项目文件
 COPY src/ros2_driver /ros2_ws/src/ros2_driver
 
@@ -23,6 +27,7 @@ RUN . /opt/ros/humble/setup.sh && \
 
 # 设置环境变量
 ENV PYTHONPATH=/ros2_ws/install/lib/python3.10/site-packages:$PYTHONPATH
+ENV LD_LIBRARY_PATH=/opt/ros/humble/lib:/ros2_ws/install/lib:$LD_LIBRARY_PATH
 
 # 设置入口点
-ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch"]
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch.py"]
