@@ -17,6 +17,7 @@ import json
 class DeviceShifuDriver(Node):
     def __init__(self):
         super().__init__('deviceshifu_driver')
+        self.get_logger().info('DeviceShifu driver initialized')
 
         # Initialize parameters
         self.declare_parameter('linear_speed', 0.5)

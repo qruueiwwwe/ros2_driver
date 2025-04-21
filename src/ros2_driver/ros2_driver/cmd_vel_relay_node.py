@@ -10,6 +10,7 @@ import time
 class CmdVelRelayNode(Node):
     def __init__(self):
         super().__init__('cmd_vel_relay')
+        self.get_logger().info('CmdVelRelayNode initialized')
 
         # 声明参数
         self.declare_parameter('max_linear_speed', 1.0)  # 最大线速度
