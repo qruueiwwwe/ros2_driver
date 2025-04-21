@@ -43,6 +43,7 @@ class DeviceShifuDriver(Node):
 
         # Create publishers
         self.cmd_vel_pub = self.create_publisher(Twist, '/custom_cmd_vel', 10)
+        self.get_logger().info('Created publisher for /custom_cmd_vel')
 
         # Initialize movement state
         self.current_command = 0  # 0: stop, 1: forward, 2: backward, 3: left, 4: right
@@ -183,6 +184,7 @@ class DeviceShifuDriver(Node):
 
                     if self.is_moving:
                         self.movement_timer = self.create_timer(0.1, self.movement_callback)
+                        self.get_logger().info(f'Created movement timer for command {command}')
                     else:
                         # 直接发布停止命令
                         cmd = Twist()
@@ -203,6 +205,7 @@ class DeviceShifuDriver(Node):
                 else:
                     return jsonify({'status': 'error', 'message': 'No command provided'}), 400
             except Exception as e:
+                self.get_logger().error(f'Move command error: {str(e)}')
                 return jsonify({'status': 'error', 'message': str(e)}), 500
                 
         @self.app.route('/speed', methods=['POST'])
@@ -259,6 +262,7 @@ class DeviceShifuDriver(Node):
                     }
                 })
             except Exception as e:
+                self.get_logger().error(f'Set speed error: {str(e)}')
                 return jsonify({'status': 'error', 'message': str(e)}), 500
                 
         @self.app.route('/speed', methods=['GET'])
@@ -309,7 +313,7 @@ class DeviceShifuDriver(Node):
                 
                 return jsonify({'status': 'success', 'message': 'Robot stopped'})
             except Exception as e:
-                self.get_logger().error(f'停止命令出错: {str(e)}')
+                self.get_logger().error(f'Stop command error: {str(e)}')
                 return jsonify({'status': 'error', 'message': str(e)}), 500
 
         @self.app.route('/status', methods=['GET'])
@@ -409,6 +413,7 @@ class DeviceShifuDriver(Node):
 
         # 发布命令
         self.cmd_vel_pub.publish(cmd)
+        self.get_logger().info(f'Published command - linear: {self.current_linear_speed}, angular: {self.current_angular_speed}')
 
         # 检查是否达到目标速度
         if abs(self.current_linear_speed - self.target_linear_speed) < 0.01 and \
