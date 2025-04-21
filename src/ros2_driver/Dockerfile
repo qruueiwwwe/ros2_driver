@@ -14,8 +14,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install flask pyyaml opencv-python numpy
+
 # 复制项目文件
-COPY src/ros2_driver /ros2_ws/src/ros2_driver
+COPY . /ros2_ws/src/ros2_driver
 
 # 安装Python依赖
 RUN pip3 install -e /ros2_ws/src/ros2_driver
