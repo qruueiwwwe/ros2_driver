@@ -39,12 +39,12 @@ spec:
             - containerPort: 5000
               hostPort: 5000
           env:
-            - name: ROS_DOMAIN_ID
-              value: "0"
+            # - name: ROS_DOMAIN_ID
+            #   value: "0"
             - name: ROS_MASTER_URI
               value: "http://192.168.31.118:11311"
-            - name: ROS_LOCALHOST_ONLY
-              value: "0"
+            # - name: ROS_LOCALHOST_ONLY
+            #   value: "0"
             - name: ROS_IP
               valueFrom:
                 fieldRef:
@@ -66,7 +66,7 @@ spec:
             - name: ROS_PACKAGE_PATH
               value: "/opt/ros/humble/share:/ros2_ws/src"
             - name: ROS_DISTRO
-              value: "humble"
+              value: "humble"     
           volumeMounts:
             - name: config-volume
               mountPath: /ros2_ws/src/ros2_driver/config
