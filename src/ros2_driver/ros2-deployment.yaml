@@ -32,12 +32,9 @@ spec:
               memory: "256Mi"
               cpu: "200m"
           ports:
-            - containerPort: 11311
-              hostPort: 11311
-            - containerPort: 11312
-              hostPort: 11312
             - containerPort: 5000
               hostPort: 5000
+              protocol: TCP
           env:
             - name: ROS_DOMAIN_ID
               value: "0"
@@ -64,7 +61,7 @@ spec:
             - name: ROS_PACKAGE_PATH
               value: "/opt/ros/humble/share:/ros2_ws/src"
             - name: ROS_DISTRO
-              value: "humble"     
+              value: "humble"
           volumeMounts:
             - name: config-volume
               mountPath: /ros2_ws/src/ros2_driver/config
@@ -97,13 +94,9 @@ spec:
   selector:
     app: ros2-driver
   ports:
-    - port: 11311
-      targetPort: 11311
-      name: ros-master
-    - port: 11312
-      targetPort: 11312
-      name: ros-slave
     - port: 5000
       targetPort: 5000
-      name: http
+      protocol: TCP
   type: NodePort
+  externalIPs:
+    - 192.168.31.118 
