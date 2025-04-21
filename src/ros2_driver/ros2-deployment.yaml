@@ -32,20 +32,13 @@ spec:
               memory: "256Mi"
               cpu: "200m"
           ports:
-            - containerPort: 11311
-              hostPort: 11311
-              protocol: TCP
-            - containerPort: 11312
-              hostPort: 11312
-              protocol: TCP
             - containerPort: 5000
               hostPort: 5000
-              protocol: TCP
           env:
-            - name: ROS_DOMAIN_ID
-              value: "0"
-            - name: ROS_LOCALHOST_ONLY
-              value: "0"
+            - name: ROS_MASTER_URI
+              value: "http://192.168.31.118:11311"
+            # - name: ROS_LOCALHOST_ONLY
+            #   value: "0"
             - name: ROS_IP
               valueFrom:
                 fieldRef:
@@ -68,13 +61,7 @@ spec:
               value: "/opt/ros/humble/share:/ros2_ws/src"
             - name: ROS_DISTRO
               value: "humble"
-            - name: RMW_IMPLEMENTATION
-              value: "rmw_cyclonedds_cpp"
-            - name: CYCLONEDDS_URI
-              value: "<CycloneDDS><Domain><General><AllowMulticast>true</AllowMulticast></General></Domain></CycloneDDS>"
           volumeMounts:
-            - name: config-volume
-              mountPath: /ros2_ws/src/ros2_driver/config
             - name: tty-acm0
               mountPath: /dev/ttyACM0
             - name: tty-acm1
@@ -82,9 +69,6 @@ spec:
           command: ["/bin/bash"]
           args: ["-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch.py"]
       volumes:
-        - name: config-volume
-          configMap:
-            name: ros2-config
         - name: tty-acm0
           hostPath:
             path: /dev/ttyACM0
@@ -93,6 +77,7 @@ spec:
           hostPath:
             path: /dev/ttyACM1
             type: CharDevice
+
 ---
 apiVersion: v1
 kind: Service
