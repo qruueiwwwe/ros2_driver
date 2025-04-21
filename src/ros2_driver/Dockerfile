@@ -1,49 +1,40 @@
-# 构建阶段
-FROM ros:humble as builder
+# 使用ROS2 Humble作为基础镜像
+FROM ros:humble-ros-base
 
-# 安装构建依赖
+# 设置工作目录
+WORKDIR /ros2_ws
+
+# 安装必要的系统依赖
 RUN apt-get update && apt-get install -y \
     python3-pip \
+    python3-colcon-common-extensions \
+    python3-flask \
     python3-opencv \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装Python依赖
-RUN pip3 install flask pyyaml opencv-python numpy
 
-# 创建工作空间
-WORKDIR /ros2_ws/src
-COPY . /ros2_ws/src/
+# 复制项目文件
+COPY . /ros2_ws/src/ros2_driver
 
-# 编译工作空间
-WORKDIR /ros2_ws
-RUN . /opt/ros/humble/setup.sh && \
-    colcon build --packages-select ros2_driver --symlink-install
-
-# 复制 ROS2 包
-COPY . /ros2_ws/src/ros2_driver/
-
-# 确保 Python 文件有执行权限
-RUN chmod +x /ros2_ws/src/ros2_driver/ros2_driver/*.py
-
-# 构建 ROS2 包
+# 构建ROS2工作空间
 RUN . /opt/ros/humble/setup.sh && \
     cd /ros2_ws && \
-    colcon build --packages-select ros2_driver
-
-# 手动创建 libexec 目录和可执行文件
-RUN mkdir -p /ros2_ws/install/ros2_driver/lib/ros2_driver && \
-    ln -sf /ros2_ws/src/ros2_driver/ros2_driver/driver_node.py /ros2_ws/install/ros2_driver/lib/ros2_driver/driver_node && \
-    ln -sf /ros2_ws/src/ros2_driver/ros2_driver/cmd_vel_relay_node.py /ros2_ws/install/ros2_driver/lib/ros2_driver/cmd_vel_relay_node && \
-    chmod +x /ros2_ws/install/ros2_driver/lib/ros2_driver/*
+    colcon build --symlink-install
 
 # 设置环境变量
-ENV PYTHONPATH=/ros2_ws/install/ros2_driver/lib/python3.10/site-packages:$PYTHONPATH
-ENV LD_LIBRARY_PATH=/ros2_ws/install/ros2_driver/lib:$LD_LIBRARY_PATH
+ENV PYTHONPATH=/ros2_ws/install/lib/python3.10/site-packages:$PYTHONPATH
+ENV LD_LIBRARY_PATH=/opt/ros/humble/lib:/ros2_ws/install/lib:$LD_LIBRARY_PATH
+ENV ROS_PACKAGE_PATH=/opt/ros/humble/share:/ros2_ws/src:$ROS_PACKAGE_PATH
+ENV ROS_MASTER_URI=http://192.168.31.118:11311
+ENV PATH=/opt/ros/humble/bin:$PATH
+
+# 创建启动脚本
+RUN echo '#!/bin/bash\n\
+source /opt/ros/humble/setup.bash\n\
+source /ros2_ws/install/setup.bash\n\
+exec "$@"' > /entrypoint.sh && chmod +x /entrypoint.sh
 
 # 设置入口点
-ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/humble/setup.sh && source /ros2_ws/install/setup.bash && exec \"$@\""]
-
-# 修改 CMD 命令
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["ros2", "launch", "ros2_driver", "driver.launch.py"]
-
