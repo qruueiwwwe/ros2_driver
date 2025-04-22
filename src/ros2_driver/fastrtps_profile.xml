@@ -5,10 +5,13 @@
         <discovery_config>
           <discoveryProtocol>CLIENT</discoveryProtocol>
           <discoveryServersList>
-            <RemoteServer address="192.168.31.118" />
+            <RemoteServer guidPrefix="44.53.00.5F.45.53.52.56.44.53.00.01" address="192.168.31.118" port="11311"/>
           </discoveryServersList>
         </discovery_config>
       </builtin>
+      <port>
+        <portBase>7400</portBase>
+      </port>
     </rtps>
   </participant>
 </profiles>
