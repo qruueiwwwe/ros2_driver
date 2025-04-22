@@ -4,10 +4,7 @@
     <rtps>
       <builtin>
         <discovery_config>
-          <discoveryProtocol>CLIENT</discoveryProtocol>
-          <discoveryServersList>
-            <RemoteServer guidPrefix="44.53.00.5F.45.53.52.56.44.53.00.01" address="ros2-discovery.devices.svc.cluster.local" port="11811"/>
-          </discoveryServersList>
+          <discoveryProtocol>SERVER</discoveryProtocol>
         </discovery_config>
       </builtin>
       <port>
