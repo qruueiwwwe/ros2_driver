@@ -6,7 +6,6 @@
       <builtin>
         <discovery_config>
           <discoveryProtocol>SERVER</discoveryProtocol>
-          <discoveryServersList/>
         </discovery_config>
       </builtin>
 
