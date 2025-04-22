@@ -16,8 +16,6 @@ spec:
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
-      nodeSelector:
-        kubernetes.io/hostname: k8s-car-device003
       containers:
         - name: ros2-driver
           image: ros2-driver:v1
@@ -36,8 +34,10 @@ spec:
           env:
             - name: ROS_DOMAIN_ID
               value: "0"
-            - name: ROS_LOCALHOST_ONLY
-              value: "0"
+             - name: RMW_IMPLEMENTATION
+              value: rmw_fastrtps_cpp
+            - name: FASTRTPS_DEFAULT_PROFILES_FILE
+              value: /etc/fastdds/fastrtps_profile.xml
             - name: ROS_IP
               valueFrom:
                 fieldRef:
@@ -61,21 +61,16 @@ spec:
             - name: ROS_DISTRO
               value: "humble"
           volumeMounts:
-            - name: tty-acm0
-              mountPath: /dev/ttyACM0
-            - name: tty-acm1
-              mountPath: /dev/ttyACM1
+            - name: fastdds-profile
+              mountPath: /etc/fastdds
+              readOnly: true
           command: ["/bin/bash"]
           args: ["-c", "source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash && ros2 launch ros2_driver driver.launch.py"]
+      
       volumes:
-        - name: tty-acm0
-          hostPath:
-            path: /dev/ttyACM0
-            type: CharDevice
-        - name: tty-acm1
-          hostPath:
-            path: /dev/ttyACM1
-            type: CharDevice
+        - name: fastdds-profile
+          configMap:
+            name: fastrtps-profile
 
 ---
 apiVersion: v1

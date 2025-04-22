@@ -1,11 +1,12 @@
-<profiles>
+<?xml version="1.0" encoding="UTF-8" ?>
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
   <participant profile_name="default" is_default_profile="true">
     <rtps>
       <builtin>
         <discovery_config>
           <discoveryProtocol>CLIENT</discoveryProtocol>
           <discoveryServersList>
-            <RemoteServer guidPrefix="44.53.00.5F.45.53.52.56.44.53.00.01" address="192.168.31.118" port="11311"/>
+            <RemoteServer guidPrefix="44.53.00.5F.45.53.52.56.44.53.00.01" address="ros2-discovery.devices.svc.cluster.local" port="11811"/>
           </discoveryServersList>
         </discovery_config>
       </builtin>

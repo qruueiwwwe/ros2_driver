@@ -1,6 +1,5 @@
 # 使用ROS2 Humble作为基础镜像
-FROM ros:humble
-
+FROM ros:humble-ros-base
 # 设置工作目录
 WORKDIR /ros2_ws
 
@@ -27,8 +26,9 @@ RUN . /opt/ros/humble/setup.sh && \
 # 设置环境变量
 ENV PYTHONPATH=/opt/ros/humble/lib/python3.10/site-packages:/ros2_ws/install/lib/python3.10/site-packages
 ENV LD_LIBRARY_PATH=/opt/ros/humble/lib:/ros2_ws/install/lib
-ENV ROS_ROOT=/opt/ros/humble/share/ros
-ENV ROS_PACKAGE_PATH=/opt/ros/humble/share:/ros2_ws/src
+ENV FASTRTPS_DEFAULT_PROFILES_FILE=/etc/fastdds/fastrtps_profile.xml
+ENV ROS_DOMAIN_ID=0
+ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ENV ROS_DISTRO=humble
 
 # 设置入口点和默认命令

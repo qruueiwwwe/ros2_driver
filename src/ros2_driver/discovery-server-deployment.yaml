@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ros2-discovery-server
+  namespace: devices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ros2-discovery
+  template:
+    metadata:
+      labels:
+        app: ros2-discovery
+    spec:
+      containers:
+        - name: discovery-server
+          image: eprosima/discovery-server:latest
+          ports:
+            - containerPort: 11811
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ros2-discovery
+  namespace: devices
+spec:
+  selector:
+    app: ros2-discovery
+  ports:
+    - port: 11811
+      targetPort: 11811
