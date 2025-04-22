@@ -34,7 +34,7 @@ spec:
           env:
             - name: ROS_DOMAIN_ID
               value: "0"
-             - name: RMW_IMPLEMENTATION
+            - name: RMW_IMPLEMENTATION
               value: rmw_fastrtps_cpp
             - name: FASTRTPS_DEFAULT_PROFILES_FILE
               value: /etc/fastdds/fastrtps_profile.xml
