@@ -7,6 +7,14 @@
           <discoveryProtocol>SERVER</discoveryProtocol>
         </discovery_config>
       </builtin>
+      <metatrafficUnicastLocatorList>
+        <locator>
+          <udpv4>
+            <address>192.168.31.118</address>
+            <port>11811</port>
+          </udpv4>
+        </locator>
+      </metatrafficUnicastLocatorList>
       <port>
         <portBase>7400</portBase>
       </port>
