@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
   <participant profile_name="default" is_default_profile="true">
     <rtps>
@@ -7,14 +7,14 @@
           <discoveryProtocol>SERVER</discoveryProtocol>
         </discovery_config>
       </builtin>
-      <metatrafficUnicastLocatorList>
+      <defaultUnicastLocatorList>
         <locator>
           <udpv4>
             <address>192.168.31.118</address>
             <port>11811</port>
           </udpv4>
         </locator>
-      </metatrafficUnicastLocatorList>
+      </defaultUnicastLocatorList>
       <port>
         <portBase>7400</portBase>
       </port>
