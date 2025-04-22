@@ -33,7 +33,6 @@ spec:
               cpu: "200m"
           ports:
             - containerPort: 5000
-              hostPort: 5001  # 或者直接去掉 hostPort
           env:
             - name: ROS_DOMAIN_ID
               value: "0"
@@ -46,7 +45,7 @@ spec:
             - name: ROS_HOSTNAME
               valueFrom:
                 fieldRef:
-                  fieldPath: metadata.name  # 使用 Pod 名称作为 hostname
+                  fieldPath: status.hostIP
             - name: POD_IP
               valueFrom:
                 fieldRef:
