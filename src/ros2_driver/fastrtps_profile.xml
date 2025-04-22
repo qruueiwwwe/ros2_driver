@@ -3,11 +3,20 @@
   <participant profile_name="default" is_default_profile="true">
     <rtps>
       <name>ros2_discovery_server</name>
+
       <builtin>
         <discovery_config>
           <discoveryProtocol>SERVER</discoveryProtocol>
         </discovery_config>
       </builtin>
+
+      <defaultUnicastLocatorList>
+        <locator>
+          <udpv4>
+            <address>192.168.31.118</address>
+          </udpv4>
+        </locator>
+      </defaultUnicastLocatorList>
 
       <metatrafficUnicastLocatorList>
         <locator>
@@ -18,17 +27,10 @@
         </locator>
       </metatrafficUnicastLocatorList>
 
-      <defaultUnicastLocatorList>
-        <locator>
-          <udpv4>
-            <address>192.168.31.118</address>
-          </udpv4>
-        </locator>
-      </defaultUnicastLocatorList>
-
       <port>
         <portBase>7400</portBase>
       </port>
+
     </rtps>
   </participant>
 </profiles>
